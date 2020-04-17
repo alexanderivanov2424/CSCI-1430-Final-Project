@@ -11,3 +11,11 @@ ____  _____    _    ____  __  __ _____
 
 Sources:
 - https://www.tensorflow.org/tutorials/images/transfer_learning
+
+
+
+
+
+Extracting Layer:
+
+https://github.com/tensorflow/tensorflow/issues/33129

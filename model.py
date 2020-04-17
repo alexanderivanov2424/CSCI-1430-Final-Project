@@ -40,7 +40,7 @@ for image, label in raw_train.take(2):
   plt.figure()
   plt.imshow(image)
   plt.title(get_label_name(label))
-
+  plt.show()
 
 
 IMG_SIZE = 160 # All images will be resized to 160x160
@@ -84,6 +84,10 @@ print(feature_batch.shape)
 base_model.trainable = False
 # Let's take a look at the base model architecture
 base_model.summary()
+
+global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
+feature_batch_average = global_average_layer(feature_batch)
+print(feature_batch_average.shape)
 
 prediction_layer = tf.keras.layers.Dense(1)
 prediction_batch = prediction_layer(feature_batch_average)
