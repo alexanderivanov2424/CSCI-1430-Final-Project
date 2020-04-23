@@ -34,21 +34,27 @@ model = Model(base_model.input, outputs=[layer_output])
 
 # eval
 input_data = np.random.rand(1, *IMG_SHAPE)
+input_data = tf.convert_to_tensor(input_data)
 result = model.predict(input_data)
 print(result[0].shape)
 
-
-def get_grad_for_image(session, grad, img):
-    #TODO might need to run on subsets of image
-    feed_dict = model.create_feed_dict(image=img)
-    g = session.run(gradient, feed_dict=feed_dict)
-
-    #TODO normalize
-    return g
+grad = tf.gradients(model.predict(input_data), [input_data])
+print(grad)
 
 
+def get_grad_for_image(session, gradient, img):
+    #TODO function to compute gradient for image
+    #TODO needs to normalize grad
+    pass
 
-session = tf.compat.v1.Session(graph=model.graph)
-layer_tensor = model.layer_tensors[2]
-print(layer_tensor)
-grad = model.get_gradient(layer_tensor)
+
+session = tf.compat.v1.Session()
+
+
+
+img = np.random.rand(*IMG_SHAPE)
+
+feed_dict = model.create_feed_dict(image=img)
+g = session.run(gradient, feed_dict=feed_dict)
+plt.imshow(g)
+plt.show()
