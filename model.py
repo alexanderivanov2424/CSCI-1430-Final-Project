@@ -5,7 +5,7 @@ import numpy as np
 class DeepTransfer(tf.Module):
     def __init__(self, model, source_image):
         self.model = model
-        self.source_activations = model.predict(tf.expand_dims(source_image, axis=0))
+        #self.source_activations = model.predict(tf.expand_dims(source_image, axis=0))
 
     @tf.function(
         input_signature=(
@@ -19,7 +19,7 @@ class DeepTransfer(tf.Module):
         for n in tf.range(steps):
             with tf.GradientTape() as tape:
                 tape.watch(img)
-                loss = calc_loss(img, self.model)
+                loss = self.loss(img, self.model)
 
             gradients = tape.gradient(loss, img)
 
@@ -30,7 +30,7 @@ class DeepTransfer(tf.Module):
 
         return loss, img
 
-    def loss(img, model):
+    def loss(self, img, model):
         # Pass forward the image through the model to retrieve the activations.
         # Converts the image into a batch of size 1.
         img_batch = tf.expand_dims(img, axis=0)

@@ -29,7 +29,7 @@ dream_model = tf.keras.Model(inputs=base_model.input, outputs=layers)
 
 
 
-deeptransfer = DeepTransfer(dream_model)
+deeptransfer = DeepTransfer(dream_model, source)
 
 def run_deep_transfer_simple(img, steps=100, step_size=0.01):
     # Convert from uint8 to the range expected by the model.
@@ -52,16 +52,15 @@ def run_deep_transfer_simple(img, steps=100, step_size=0.01):
         loss, img = deeptransfer(img, run_steps, step_size)
 
 
-        plt.imshow(deprocess(img))
+        plt.imshow(img)
         plt.draw()
         plt.cla()
         print ("Step {}, loss {}".format(step, loss))
 
 
-    result = deprocess(img)
-    plt.imshow(result)
+    plt.imshow(img)
     plt.show()
 
-    return result
+    return img
 
-new_img = run_deep_transfer_simple(img=original_img, steps=100, step_size=0.01)
+new_img = run_deep_transfer_simple(img=target, steps=100, step_size=0.01)
