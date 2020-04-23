@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import sys
 
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -10,33 +11,38 @@ from model import *
 def get_image_as_array(file_name, size=200):
     img = Image.open(file_name)
     img = img.resize((size,size))
+    img = img.convert('RGB')
     return np.array(img)
 
 
-source = get_image_as_array("./Flag.png")
+source = get_image_as_array("./Flag.jpg")
 target = get_image_as_array("./Osman.jpg")
-
-
 
 base_model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet')
 base_model.summary()
 # Maximize the activations of these layers
-names = ['mixed3', 'mixed5']
-layers = [base_model.get_layer(name).output for name in names]
+dream_names = ['mixed3', 'mixed5']
+# Style is a function of these layers' activations
+style_names = ['conv2d_40']
+dream_layers = [base_model.get_layer(name).output for name in dream_names]
+style_layers = [base_model.get_layer(name).output for name in style_names]
 
 # Create the feature extraction model
-dream_model = tf.keras.Model(inputs=base_model.input, outputs=layers)
+dream_model = tf.keras.Model(inputs=base_model.input, outputs=dream_layers)
+# Style extraction model
+style_model = tf.keras.Model(inputs=base_model.input, outputs=style_layers)
 
 
+deeptransfer = DeepTransfer(dream_model, style_model)
 
-deeptransfer = DeepTransfer(dream_model, source)
-
-def run_deep_transfer_simple(img, steps=100, step_size=0.01):
-    # Convert from uint8 to the range expected by the model.
-    print(img.shape)
+def preprocess_inception(img):
     img = tf.keras.applications.inception_v3.preprocess_input(img)
-    print(img.shape)
     img = tf.convert_to_tensor(img)
+    return img
+
+def run_deep_transfer_simple(source, target, steps=100, step_size=0.01):
+    source = preprocess_inception(source)
+    target = preprocess_inception(target)
     step_size = tf.convert_to_tensor(step_size)
     steps_remaining = steps
     step = 0
@@ -48,8 +54,8 @@ def run_deep_transfer_simple(img, steps=100, step_size=0.01):
         steps_remaining -= run_steps
         step += run_steps
 
-        # loss, img = deepdream(img, run_steps, tf.constant(step_size))
-        loss, img = deeptransfer(img, run_steps, step_size)
+        # run_steps = tf.convert_to_tensor(run_steps)
+        loss, img = deeptransfer(source, target, run_steps, step_size)
 
 
         plt.imshow(img)
@@ -63,4 +69,4 @@ def run_deep_transfer_simple(img, steps=100, step_size=0.01):
 
     return img
 
-new_img = run_deep_transfer_simple(img=target, steps=100, step_size=0.01)
+new_img = run_deep_transfer_simple(source, target, steps=100, step_size=0.01)
