@@ -73,4 +73,4 @@ class DeepTransfer(tf.Module):
 
     def loss(self, source_style, target):
         style_weight = 1
-        return -style_weight * self.style_loss(source_style, target) +  self.dream_loss(target)
+        return -style_weight * self.style_loss(source_style, target) #+  self.dream_loss(target)
