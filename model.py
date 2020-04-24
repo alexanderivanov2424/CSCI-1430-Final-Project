@@ -19,12 +19,13 @@ class DeepTransfer(tf.Module):
     def __call__(self, source, target, steps, step_size):
 
         source_style = self.style(source)
+        original = tf.identity(target)
 
         loss = tf.constant(0.0)
         for n in tf.range(steps):
             with tf.GradientTape() as tape:
                 tape.watch(target)
-                loss = self.loss(source_style, target)
+                loss = self.loss(source_style, target, original)
 
             gradients = tape.gradient(loss, target)
 
@@ -71,6 +72,21 @@ class DeepTransfer(tf.Module):
         style_loss /= num_style_layers
         return style_loss
 
-    def loss(self, source_style, target):
+    def content_loss(self, original, target):
+        img_batch = tf.expand_dims(original, axis=0)
+        orig_act = self.dream_model(img_batch)
+        if not type(orig_act) is list:
+            orig_act = [orig_act]
+
+        img_batch = tf.expand_dims(target, axis=0)
+        targ_act = self.dream_model(img_batch)
+        if not type(targ_act) is list:
+            targ_act = [targ_act]
+
+        content_loss = tf.add_n([tf.reduce_mean(tf.square(orig_act[i] - targ_act[i])) for i in range(len(orig_act))])
+        return content_loss / len(orig_act)
+
+
+    def loss(self, source_style, target, original):
         style_weight = 1
-        return -style_weight * self.style_loss(source_style, target) +  self.dream_loss(target)
+        return -style_weight * self.style_loss(source_style, target) - self.content_loss(original,target) #+  self.dream_loss(target)

@@ -25,7 +25,7 @@ base_model.summary()
 dream_names = ['mixed3', 'mixed5']
 
 # Style is a function of these layers' activations
-style_names = ['conv2d_10','conv2d_50']
+style_names = ['conv2d_30','conv2d_80']
 dream_layers = [base_model.get_layer(name).output for name in dream_names]
 style_layers = [base_model.get_layer(name).output for name in style_names]
 
