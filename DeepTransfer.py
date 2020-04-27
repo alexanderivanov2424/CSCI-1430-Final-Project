@@ -78,4 +78,4 @@ def run_deep_transfer(source, target, steps=100, step_size=0.01):
 
     return img
 
-new_img = run_deep_transfer_simple(source, target, steps=100, step_size=0.01)
+new_img = run_deep_transfer(source, target, steps=100, step_size=0.01)
