@@ -50,7 +50,7 @@ def preprocess_inception(img):
 
 plt.show()
 
-def run_deep_transfer(source, target, steps=100, step_size=0.01):
+def run_deep_transfer_simple(source, target, steps=100, step_size=0.01):
     source = preprocess_inception(source)
     target = preprocess_inception(target)
     step_size = tf.convert_to_tensor(step_size)
