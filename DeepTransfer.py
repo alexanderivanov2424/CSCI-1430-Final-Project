@@ -8,14 +8,14 @@ from PIL import Image
 from model import *
 
 # Download an image and read it into a NumPy array.
-def get_image_as_array(file_name, size=400):
+def get_image_as_array(file_name, size=200):
     img = Image.open(file_name)
     img = img.resize((size,size))
     img = img.convert('RGB')
     return np.array(img)
 
 
-source = get_image_as_array("./Picasso.jpg")
+source = get_image_as_array("./Flag.jpg")
 target = get_image_as_array("./Osman.jpg")
 
 #base_model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet')
