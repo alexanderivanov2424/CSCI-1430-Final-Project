@@ -35,8 +35,9 @@ class DeepTransfer(tf.Module):
 
             gradients /= tf.math.reduce_std(gradients) + 1e-8
             
-            photoreal_weight = 0.1
-            photo_grad = -(2 * M.dot(tf.reshape(target, (-1,3)))).reshape(target.shape) / np.absolute(gradients) * photoreal_weight
+            photoreal_weight = 0.5
+            photo_grad = -(2 * M.dot(tf.reshape(target, (-1,3)))).reshape(target.shape) * photoreal_weight
+            photo_grad[photo_grad < gradients] = 0
 
             target = target + gradients*step_size
             target = target + photo_grad*step_size
@@ -97,4 +98,4 @@ class DeepTransfer(tf.Module):
 
     def loss(self, source_style, target, original):
         style_weight = 1
-        return -style_weight * self.style_loss(source_style, target) - self.content_loss(original, target) #+  self.dream_loss(target)
+        return -style_weight * self.style_loss(source_style, target) - self.content_loss(original, target) #+ self.dream_loss(target)

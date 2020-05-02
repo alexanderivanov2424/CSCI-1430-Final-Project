@@ -15,7 +15,7 @@ def get_image_as_array(file_name, size=200):
     return np.array(img)
 
 
-source = get_image_as_array("./Flag.jpg")
+source = get_image_as_array("./Picasso.jpg")
 target = get_image_as_array("./Osman.jpg")
 
 #base_model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet')
