@@ -15,8 +15,8 @@ def get_image_as_array(file_name, size=200):
     return np.array(img)
 
 
-source = get_image_as_array("./Picasso.jpg")
-target = get_image_as_array("./Osman.jpg")
+source = get_image_as_array("./Coral.jpg")
+target = get_image_as_array("./Tree.jpg")
 
 #base_model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet')
 base_model = tf.keras.applications.vgg16.VGG16(include_top=False, weights='imagenet')
@@ -49,7 +49,6 @@ def preprocess_inception(img):
     img = tf.convert_to_tensor(img)
     return img
 
-plt.show()
 
 def run_deep_transfer(source, target, steps=100, step_size=0.01):
     source = preprocess_inception(source)
@@ -79,4 +78,4 @@ def run_deep_transfer(source, target, steps=100, step_size=0.01):
 
     return img
 
-new_img = run_deep_transfer(source, target, steps=100, step_size=0.01)
+new_img = run_deep_transfer(source, target, steps=50, step_size=0.01)

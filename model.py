@@ -35,7 +35,7 @@ class DeepTransfer(tf.Module):
 
             gradients /= tf.math.reduce_std(gradients) + 1e-8
 
-            photoreal_weight = 0.5
+            photoreal_weight = 1
             photo_grad = -(2 * M.dot(tf.reshape(target, (-1,3)))).reshape(target.shape) * photoreal_weight
             photo_grad[photo_grad < gradients] = 0
 
