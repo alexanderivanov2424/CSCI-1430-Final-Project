@@ -15,11 +15,11 @@ def get_image_as_array(file_name, size=200):
     return np.array(img)
 
 
-source = get_image_as_array("./Picasso.jpg")
-target = get_image_as_array("./Ocean.jpg")
+source = get_image_as_array("./Ocean.jpg")
+target = get_image_as_array("./Osman.jpg")
 
 #base_model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet')
-base_model = tf.keras.applications.vgg16.VGG16(include_top=False, weights='imagenet')
+base_model = tf.keras.applications.VGG16(include_top=False, weights='imagenet')
 base_model.summary()
 
 # Maximize the activations of these layers
@@ -31,7 +31,7 @@ style_names = ['block1_conv1',
                 'block3_conv1',
                 'block4_conv1',
                 'block5_conv1']
-style_names = ['block4_conv1']
+
 dream_layers = [base_model.get_layer(name).output for name in dream_names]
 style_layers = [base_model.get_layer(name).output for name in style_names]
 
@@ -68,7 +68,7 @@ def run_deep_transfer(source, target, steps=100, step_size=0.01):
         loss, img = deeptransfer(source, target, run_steps, step_size)
 
 
-        plt.imshow(img)
+        plt.imshow(img + .5)
         plt.show()
         print ("Step {}, loss {}".format(step, loss))
 
@@ -78,4 +78,4 @@ def run_deep_transfer(source, target, steps=100, step_size=0.01):
 
     return img
 
-new_img = run_deep_transfer_simple(source, target, steps=100, step_size=0.01)
+new_img = run_deep_transfer(source, target, steps=300, step_size=0.01)

@@ -32,7 +32,7 @@ class DeepTransfer(tf.Module):
             gradients /= tf.math.reduce_std(gradients) + 1e-8
 
             target = target + gradients*step_size
-            target = tf.clip_by_value(target, -1, 1)
+            #target = tf.clip_by_value(target, -1, 1)
 
         return loss, target
 
@@ -89,4 +89,4 @@ class DeepTransfer(tf.Module):
 
     def loss(self, source_style, target, original):
         style_weight = 1
-        return -style_weight * self.style_loss(source_style, target) #+  self.dream_loss(target)
+        return - style_weight * self.style_loss(source_style, target) #+  self.dream_loss(target)

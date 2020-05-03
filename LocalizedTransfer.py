@@ -4,6 +4,7 @@ import sys
 
 import matplotlib.pyplot as plt
 from PIL import Image
+from scipy.ndimage.filters import gaussian_filter
 
 from model import *
 
@@ -15,8 +16,8 @@ def get_image_as_array(file_name, size=200):
     return np.array(img)
 
 
-source = get_image_as_array("./Picasso.jpg")
-target = get_image_as_array("./Ocean.jpg")
+source = get_image_as_array("./Ocean.jpg")
+target = get_image_as_array("./Osman.jpg")
 
 #base_model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet')
 base_model = tf.keras.applications.vgg16.VGG16(include_top=False, weights='imagenet')
@@ -31,7 +32,11 @@ style_names = ['block1_conv1',
                 'block3_conv1',
                 'block4_conv1',
                 'block5_conv1']
-style_names = ['block4_conv1']
+
+style_names = ['block1_conv1',
+                'block2_conv1',
+                'block3_conv1']
+# style_names = ['block1_conv1']
 dream_layers = [base_model.get_layer(name).output for name in dream_names]
 style_layers = [base_model.get_layer(name).output for name in style_names]
 
@@ -48,34 +53,76 @@ def preprocess_inception(img):
     img = tf.convert_to_tensor(img)
     return img
 
-plt.show()
 
-def run_deep_transfer_simple(source, target, steps=100, step_size=0.01):
-    source = preprocess_inception(source)
-    target = preprocess_inception(target)
-    step_size = tf.convert_to_tensor(step_size)
-    steps_remaining = steps
-    step = 0
-    while steps_remaining:
-        if steps_remaining>100:
-            run_steps = 100
-        else:
-          run_steps = steps_remaining
-        steps_remaining -= run_steps
-        step += run_steps
+def random_patch(img, size):
+    x = np.random.randint(0,img.shape[0]-size)
+    y = np.random.randint(0,img.shape[1]-size)
+    return img[x:x+size, y:y+size], x, y
 
-        # run_steps = tf.convert_to_tensor(run_steps)
-        loss, img = deeptransfer(source, target, run_steps, step_size)
+def patch_match_loss(source_patch, target_patch, model):
+    source_patch = preprocess_inception(source_patch)
+    target_patch = preprocess_inception(target_patch)
+
+    img_batch = tf.expand_dims(source_patch, axis=0)
+    source_act = model(img_batch)
+    if not type(source_act) is list:
+        source_act = [source_act]
+
+    img_batch = tf.expand_dims(target_patch, axis=0)
+    target_act = model(img_batch)
+    if not type(target_act) is list:
+        target_act = [target_act]
+
+    return tf.add_n([tf.reduce_mean(tf.square(source_act[i] - target_act[i])) for i in range(len(source_act))])
+
+def match_patch(source_patch, target, samples, model):
+    best_patch = random_patch(target, source_patch[0].shape[0])
+    best_loss = patch_match_loss(source_patch[0], best_patch[0], model)
+    for k in range(samples):
+        test_patch = random_patch(target, source_patch[0].shape[0])
+        test_loss = patch_match_loss(source_patch[0], test_patch[0], model)
+
+        if test_loss < best_loss:
+            best_loss = test_loss
+            best_patch = test_patch
+    return best_patch
+
+def create_mask(x,y,r,shape):
+    mask = np.zeros(shape)
+    for i in range(mask.shape[0]):
+        for j in range(mask.shape[1]):
+            if (x-i)*(x-i) + (y-j)*(y-j) < r*r:
+                mask[i,j] = 1
+    return gaussian_filter(mask,sigma=5,order=0)
+
+def run_local_transfer(source, target, size, k, model):
+    result = preprocess_inception(target).numpy()
+
+    for transfer in range(k):
+        source_patch = random_patch(source, size)
+        target_patch = match_patch(source_patch, target, 100, model)
+
+        S = preprocess_inception(source_patch[0])
+        T = preprocess_inception(target_patch[0])
+        loss, img = deeptransfer(S, T, 50, .01)
 
 
-        plt.imshow(img)
-        plt.show()
-        print ("Step {}, loss {}".format(step, loss))
 
+        _, x, y = target_patch
+        mask = create_mask(x+size/2,y+size/2,size/4,result.shape)
 
-    #plt.imshow(img)
-    #plt.show()
+        delta = np.zeros(result.shape)
+        delta[x:x+size, y:y+size] = (img - result[x:x+size, y:y+size])
+        result += mask*delta
 
-    return img
+        plt.imshow(np.clip(result+.5,0,1))
+        plt.draw()
+        plt.pause(.01)
+        plt.cla()
 
-new_img = run_deep_transfer_simple(source, target, steps=100, step_size=0.01)
+    result += .5
+
+    plt.imshow(result)
+    plt.show()
+
+run_local_transfer(source, target, 30, 100, style_model)
