@@ -12,20 +12,33 @@ import os
 from PIL import Image , ImageOps
 
 
+import matplotlib.pyplot as plt
+
+
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+
+
+def get_image_as_array(file_name, size=200):
+    img = Image.open(file_name)
+    img = img.resize((size,size))
+    img = np.array(img)
+    img = np.array([img])
+    return img
+
+input_image = get_image_as_array("./Osman.jpg",128)
+plt.imshow(input_image.reshape(128,128,3))
+plt.show()
 
 x = list()
 y = list()
 
-#@markdown > The number of images to load from the dataset. By default 400 images are loaded.
-num_images = 400 #@param {type: "number" }
+num_images = 400
 
 image_dir = 'cityscape_images/images'
 image_filenames = os.listdir( image_dir )
 for filename in image_filenames[ 0 : 100 ]:
-	image = Image \
-		.open(os.path.join( image_dir, filename))
+	image = Image.open(os.path.join( image_dir, filename))
 	x.append( np.asarray( ImageOps.crop( image , ( 0 , 0 , 256 , 0 ) ).resize( ( 128, 128 )) ) )
 	y.append(np.asarray( ImageOps.crop(image, (256, 0, 0, 0)).resize( ( 128 , 128 ) ) ))
 
@@ -54,10 +67,6 @@ train_dataset = train_dataset.shuffle( 1024 ).batch( batch_size )
 test_dataset = tf.data.Dataset.from_tensor_slices( ( test_features , test_labels ) )
 test_dataset = test_dataset.shuffle( 1024 ).batch( batch_size )
 
-
-relu_alpha = 0.2
-
-dropout_rate = 0.5
 
 padding = 'SAME'
 
@@ -191,8 +200,18 @@ for e in range( num_epochs ):
         summ_loss = train( model , image , label )
 
 
+def get_image_as_array(file_name, size=200):
+    img = Image.open(file_name)
+    img = img.resize((size,size))
+    img = np.array(img)
+    img = np.array([img])
+    return img
 
-import matplotlib.pyplot as plt
+input_image = get_image_as_array("./Osman.jpg",128)
+pred = model( input_image ).numpy()
+plt.imshow(pred.reshape((128,128)))
+plt.show()
+
 
 input_image = test_features[0:1]
 pred = model( input_image ).numpy()

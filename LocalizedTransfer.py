@@ -16,8 +16,8 @@ def get_image_as_array(file_name, size=200):
     return np.array(img)
 
 
-source = get_image_as_array("./Ocean.jpg")
-target = get_image_as_array("./Osman.jpg")
+source = get_image_as_array("./Flag.jpg")
+target = get_image_as_array("./Ocean.jpg")
 
 #base_model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet')
 base_model = tf.keras.applications.vgg16.VGG16(include_top=False, weights='imagenet')
@@ -33,9 +33,7 @@ style_names = ['block1_conv1',
                 'block4_conv1',
                 'block5_conv1']
 
-style_names = ['block1_conv1',
-                'block2_conv1',
-                'block3_conv1']
+style_names = ['block1_conv1']
 # style_names = ['block1_conv1']
 dream_layers = [base_model.get_layer(name).output for name in dream_names]
 style_layers = [base_model.get_layer(name).output for name in style_names]
@@ -100,11 +98,11 @@ def run_local_transfer(source, target, size, k, model):
 
     for transfer in range(k):
         source_patch = random_patch(source, size)
-        target_patch = match_patch(source_patch, target, 100, model)
+        target_patch = match_patch(source_patch, target, 50, model)
 
         S = preprocess_inception(source_patch[0])
         T = preprocess_inception(target_patch[0])
-        loss, img = deeptransfer(S, T, 50, .01)
+        loss, img = deeptransfer(S, T, 30, .01)
 
 
 
@@ -125,4 +123,4 @@ def run_local_transfer(source, target, size, k, model):
     plt.imshow(result)
     plt.show()
 
-run_local_transfer(source, target, 30, 100, style_model)
+run_local_transfer(source, target, 30, 1000, style_model)
