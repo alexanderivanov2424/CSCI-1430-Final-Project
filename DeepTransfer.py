@@ -15,11 +15,12 @@ def get_image_as_array(file_name, size=200):
     return np.array(img)
 
 
-source = get_image_as_array("./Ocean.jpg")
+source = get_image_as_array("./Picasso.jpg")
 target = get_image_as_array("./Osman.jpg")
 
 #base_model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet')
-base_model = tf.keras.applications.VGG16(include_top=False, weights='imagenet')
+base_model = tf.keras.applications.vgg16.VGG16(include_top=False, weights='imagenet')
+# RESNET base_model = tf.keras.applications.ResNet50(include_top=False, weights='imagenet')
 base_model.summary()
 
 # Maximize the activations of these layers
@@ -28,10 +29,10 @@ dream_names = ['block1_pool']
 # Style is a function of these layers' activations
 style_names = ['block1_conv1',
                 'block2_conv1',
-                'block3_conv1',
-                'block4_conv1',
-                'block5_conv1']
-
+                 'block3_conv1',
+                 'block4_conv1',
+                 'block5_conv1']
+#resnet style_names = ['conv4_block1_1_conv']
 dream_layers = [base_model.get_layer(name).output for name in dream_names]
 style_layers = [base_model.get_layer(name).output for name in style_names]
 
@@ -78,4 +79,4 @@ def run_deep_transfer(source, target, steps=100, step_size=0.01):
 
     return img
 
-new_img = run_deep_transfer(source, target, steps=300, step_size=0.01)
+new_img = run_deep_transfer(source, target, steps=100, step_size=0.01)

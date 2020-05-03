@@ -3,23 +3,27 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
+from laplacian import compute_laplacian
+
 
 class DeepTransfer(tf.Module):
     def __init__(self, dream_model, style_model):
         self.dream_model = dream_model
         self.style_model = style_model
 
-    @tf.function(
-        input_signature=(
-            tf.TensorSpec(shape=[None,None,3], dtype=tf.float32),
-            tf.TensorSpec(shape=[None,None,3], dtype=tf.float32),
-            tf.TensorSpec(shape=[], dtype=tf.int32),
-            tf.TensorSpec(shape=[], dtype=tf.float32),)
-    )
+    # @tf.function(
+    #     input_signature=(
+    #         tf.TensorSpec(shape=[None,None,3], dtype=tf.float32),
+    #         tf.TensorSpec(shape=[None,None,3], dtype=tf.float32),
+    #         tf.TensorSpec(shape=[], dtype=tf.int32),
+    #         tf.TensorSpec(shape=[], dtype=tf.float32),)
+    # )
     def __call__(self, source, target, steps, step_size):
 
         source_style = self.style(source)
         original = tf.identity(target)
+
+        M = compute_laplacian(source.numpy())
 
         loss = tf.constant(0.0)
         for n in tf.range(steps):
@@ -30,9 +34,18 @@ class DeepTransfer(tf.Module):
             gradients = tape.gradient(loss, target)
 
             gradients /= tf.math.reduce_std(gradients) + 1e-8
+            
+            photoreal_weight = 0.5
+            photo_grad = -(2 * M.dot(tf.reshape(target, (-1,3)))).reshape(target.shape) * photoreal_weight
+            photo_grad[photo_grad < gradients] = 0
 
             target = target + gradients*step_size
+<<<<<<< HEAD
             #target = tf.clip_by_value(target, -1, 1)
+=======
+            target = target + photo_grad*step_size
+            target = tf.clip_by_value(target, -1, 1)
+>>>>>>> 924aa1f8d298bc03e06afb40fd7d0c0791fdc68b
 
         return loss, target
 
@@ -89,4 +102,8 @@ class DeepTransfer(tf.Module):
 
     def loss(self, source_style, target, original):
         style_weight = 1
+<<<<<<< HEAD
         return - style_weight * self.style_loss(source_style, target) #+  self.dream_loss(target)
+=======
+        return -style_weight * self.style_loss(source_style, target) - self.content_loss(original, target) #+ self.dream_loss(target)
+>>>>>>> 924aa1f8d298bc03e06afb40fd7d0c0791fdc68b
