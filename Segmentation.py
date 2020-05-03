@@ -55,28 +55,24 @@ test_dataset = tf.data.Dataset.from_tensor_slices( ( test_features , test_labels
 test_dataset = test_dataset.shuffle( 1024 ).batch( batch_size )
 
 
-relu_alpha = 0.2  #@param {type: "number"}
+relu_alpha = 0.2
 
-dropout_rate = 0.5  #@param {type: "number"}
+dropout_rate = 0.5
 
-padding = 'SAME' #@param [ 'SAME' , 'VALID' ]
+padding = 'SAME'
 
 def conv2d_down( inputs , filters , stride_size ):
-    #print( 'conv2d down' )
     out = tf.nn.conv2d( inputs , filters , strides=stride_size , padding=padding )
     return tf.nn.leaky_relu( out , alpha=0.2 )
 
 def maxpool_down( inputs , pool_size , stride_size ):
-    #print( 'maxpool down' )
     return tf.nn.max_pool( inputs , ksize=pool_size , padding='VALID' , strides=stride_size )
 
 def conv2d_up( inputs , filters , stride_size , output_shape ):
-    #print( 'conv2d up' )
     out = tf.nn.conv2d_transpose( inputs , filters , output_shape=output_shape , strides=stride_size , padding=padding )
     return tf.nn.leaky_relu( out , alpha=0.2 )
 
 def maxpool_up( inputs , size ):
-    #print( 'maxpool up' )
     in_dimen = tf.shape( inputs )[ 1 ]
     out_dimen = tf.cast( tf.round( in_dimen * size ) , dtype=tf.int32 )
     return tf.image.resize( inputs , [ out_dimen , out_dimen ] , method='nearest' )
