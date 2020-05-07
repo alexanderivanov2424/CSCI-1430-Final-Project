@@ -7,10 +7,50 @@ ____  _____    _    ____  __  __ _____
 
 ##########################################################
 
+__________________________________________________________
+Authors:
+
+Rahul Shahi, Alexander Ivanov, Miru Yang
+
+__________________________________________________________
+Relevant Papers:
+
+Deep Photo Style Transfer
+https://arxiv.org/abs/1703.07511
+
+A Neural Algorithm of Artistic Style
+https://arxiv.org/abs/1508.06576
 
 
-semantic segmentation tutorial:
+__________________________________________________________
+Directory Structure:
 
-Using https://colab.research.google.com/drive/1i-7Vn_9hGdOvMjkYNedK5nsonNizhe0o#scrollTo=jM2zzpbPc5vR&forceEdit=true&sandboxMode=true
+RawImages - Folder with images used as input
+ResultImages - Folder with resulting images from Deep Content Transfer
 
-Instead used openCV
+__________________________________________________________
+Run Code:
+
+DeepTransfer.py performs most of the heavy lifting.
+To select custom source and target images modify the lines:
+18 | source = get_image_as_array("./RawImages/Coral.jpg")
+19 | target = get_image_as_array("./RawImages/Tree.jpg")
+
+To adjust the step size and the number of iterations modify the line
+81 | new_img = run_deep_transfer(source, target, steps=50, step_size=0.01)
+
+For more in-depth experimentation the layers used for the style model can be
+adjusted. Refer to the layers names printed in the tf.summary() and add the
+desired layer names to the style_names list. Note the list cannot be empty.
+
+__________________________________________________________
+Implementation Notes:
+
+Early versions used a separate set of layers to perform a "deep dream" as well
+as the style transfer. For this reason there is also the option to select
+"dream layers". The loss that corresponds to these layers is not incorporated
+and can be turned on by adding the dream_loss() to the output of loss() in
+model.py
+
+LocalizedTransfer.py was made for some testing purposes and is kept for archival
+purposes. Some modifications of model.py may be necesary to achieve full results.

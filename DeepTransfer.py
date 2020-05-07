@@ -1,6 +1,5 @@
 import tensorflow as tf
 import numpy as np
-import sys
 
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -15,8 +14,8 @@ def get_image_as_array(file_name, size=200):
     return np.array(img)
 
 
-source = get_image_as_array("./Coral.jpg")
-target = get_image_as_array("./Tree.jpg")
+source = get_image_as_array("./RawImages/Coral.jpg")
+target = get_image_as_array("./RawImages/Tree.jpg")
 
 #base_model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet')
 base_model = tf.keras.applications.vgg16.VGG16(include_top=False, weights='imagenet')
