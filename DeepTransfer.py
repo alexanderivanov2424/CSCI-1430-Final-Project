@@ -1,4 +1,5 @@
 import tensorflow as tf
+import argparse 
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -6,16 +7,41 @@ from PIL import Image
 
 from model import *
 
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--source', type=str,
+    default='Picasso',
+    help='Filename of the source image (example: Picasso)')
+
+    parser.add_argument('--target', type=str,
+    default='Osman',
+    help='Filename of the target image (example: Osman)')
+
+    parser.add_argument('--size', type=int,
+    default=200,
+    help='Size in pixels of the output image (default: 200px)')
+
+    args = parser.parse_args()
+    return args
+
+def main():
+  global args
+  args = parse_args()
+
+if __name__ == '__main__':
+  main()
+
 # Download an image and read it into a NumPy array.
-def get_image_as_array(file_name, size=200):
+def get_image_as_array(file_name, size=args.size):
     img = Image.open(file_name)
     img = img.resize((size,size))
     img = img.convert('RGB')
     return np.array(img)
 
-
-source = get_image_as_array("./RawImages/Coral.jpg")
-target = get_image_as_array("./RawImages/Tree.jpg")
+source = get_image_as_array("./RawImages/"+args.source+".jpg")
+target = get_image_as_array("./RawImages/"+args.target+".jpg")
 
 #base_model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet')
 base_model = tf.keras.applications.vgg16.VGG16(include_top=False, weights='imagenet')
@@ -67,7 +93,7 @@ def run_deep_transfer(source, target, steps=100, step_size=0.01):
         loss, img = deeptransfer(source, target, run_steps, step_size)
 
 
-        plt.imshow(img + .5)
+        plt.imshow(img + .25)
         plt.show()
         print ("Step {}, loss {}".format(step, loss))
 
@@ -78,3 +104,4 @@ def run_deep_transfer(source, target, steps=100, step_size=0.01):
     return img
 
 new_img = run_deep_transfer(source, target, steps=50, step_size=0.01)
+
