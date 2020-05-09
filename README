@@ -1,5 +1,5 @@
 ##########################################################
-____  _____    _    ____  __  __ _____
+ ____  _____    _    ____  __  __ _____
 |  _ \| ____|  / \  |  _ \|  \/  | ____|
 | |_) |  _|   / _ \ | | | | |\/| |  _|
 |  _ <| |___ / ___ \| |_| | |  | | |___
@@ -32,9 +32,10 @@ __________________________________________________________
 Run Code:
 
 DeepTransfer.py performs most of the heavy lifting.
-To select custom source and target images modify the lines:
-18 | source = get_image_as_array("./RawImages/Coral.jpg")
-19 | target = get_image_as_array("./RawImages/Tree.jpg")
+To select custom source and target images from the RawImages folder use the arguments:
+--source 
+--target
+You can also change the size of the output image with the argument --size
 
 To adjust the step size and the number of iterations modify the line
 81 | new_img = run_deep_transfer(source, target, steps=50, step_size=0.01)
