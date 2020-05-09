@@ -42,6 +42,9 @@ def get_image_as_array(file_name, size=args.size):
 
 source = get_image_as_array("./RawImages/"+args.source+".jpg")
 target = get_image_as_array("./RawImages/"+args.target+".jpg")
+plt.imshow(target)
+plt.show()
+
 
 #base_model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet')
 base_model = tf.keras.applications.vgg16.VGG16(include_top=False, weights='imagenet')
@@ -93,7 +96,7 @@ def run_deep_transfer(source, target, steps=100, step_size=0.01):
         loss, img = deeptransfer(source, target, run_steps, step_size)
 
 
-        plt.imshow(img + .25)
+        plt.imshow(img + .0)
         plt.show()
         print ("Step {}, loss {}".format(step, loss))
 
